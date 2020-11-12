@@ -1,0 +1,202 @@
+<!--
+    Atv. 1.5 Dev. De Aplicações
+    Acadêmico: Lucas Francisco Donatti
+    Professor: Hugo Henrique Fumero de Souza
+
+    Com base no exercício do jogo da velha que tivemos em sala de aula, 
+    faça com que a tela (com html) mostre se é a vez da máquina ou a 
+    vez do usuário jogar. O usuário deve ver na tela quem deve executar 
+    a próxima jogada. Você também deverá respeitar os seguintes requisitos:
+
+    - A “velha” deverá ficar no centro da tela
+
+    - A máquina só poderá EXECUTAR a jogada após 2 segundos da vez do usuário. 
+    Ou seja, deverá aparecer que é a vez da máquina e apenas 2 segundos depois a 
+    máquina poderá inserir a “bolinha”
+
+    - O código deverá ser postado no github
+
+    - Não há necessidade de implementar o tratamento de randomização de jogadas da máquina
+-->
+
+<!-- Desenvolvimento do Jogo -->
+<!-- 
+    Criar tabela ----------------- Feito
+    Centralizar tabela ----------- Feito
+    Vez do jogador --------------- Feito
+    Vez da maquina --------------- Feito
+    Mostrar de quem é a vez ------ Feito
+    Mostrar quem é o proximo ----- Feito
+    Delay de 2 seg. da maquina --- Feito
+    Postar código no GitHub ------ A fazer
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Jogo Da Velha</title>
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" integrity="sha384-vp86vTRFVJgpjF9jiIGPEEqYqlDwgyBgEF109VFjmqGmIY/Y4HV4d3Gp2irVfcrp" crossorigin="anonymous">
+    
+        <style>
+            body{
+                font: normal 16pt Arial;
+            }
+
+            .celula{
+			    width: 30px;
+    		    height: 30px;
+		    }
+        </style>
+    </head>
+    <body>
+        <h1 align="center">Jogo da Velha</h1>
+        <table class="jogoDaVelha" align="center" border="1">
+            <h5 align="center">Jogador: X -- Máquina: O</h5>
+            <h6 align="center" id="vezAtual">Vez de: </h6>
+            <h6 align="center" id="vezProximo">Próximo: </h6>
+            <tr align="center">
+                <td class="celula" id="1,1" onclick="add('1,1', 0)"></td>
+                <td class="celula" id="1,2" onclick="add('1,2', 1)"></td>
+                <td class="celula" id="1,3" onclick="add('1,3', 2)"></td>
+            </tr>
+            <tr align="center">
+                <td class="celula" id="2,1" onclick="add('2,1', 3)"></td>
+                <td class="celula" id="2,2" onclick="add('2,2', 4)"></td>
+                <td class="celula" id="2,3" onclick="add('2,3', 5)"></td>
+            </tr>
+            <tr align="center">
+                <td class="celula" id="3,1" onclick="add('3,1', 6)"></td>
+                <td class="celula" id="3,2" onclick="add('3,2', 7)"></td>
+                <td class="celula" id="3,3" onclick="add('3,3', 8)"></td>
+            </tr>
+        </table>
+        <footer>
+            <div align="center">
+                <p>
+                    <h6>
+                        Feito por: Lucas Francisco Donatti <br>
+                        Professor: Hugo Fumero <br>
+                        Turma: ADSSIS2 <br>
+                    </h6>
+                </p>
+            </div>
+        </footer>
+    </body>
+
+    <script type="text/javascript">
+        var quadranteMarcado = [];
+        var quadrantes = ["1,1","1,2","1,3","2,1","2,2","2,3","3,1","3,2","3,3"];
+        var jogadaMaquina;
+        var repita; // Repita para caso quadrante já preenchido
+        var vez, proximo;    // Vez do jogador ou da máquina
+        var contador_velha = 0;   // Condicional para fim de jogo
+
+        // I N I C I A L I Z A Ç Ã O   D O S   Q U A D R A N T E S
+        for (let x = 0; x < 9; x++)
+            quadranteMarcado[x] = 0;
+        
+        // F U N Ç Ã O   S L E E P
+        function sleep(ms)
+        {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // V E Z   A T U A L   E   P R Ó X I M O
+        function vezDe(vez)
+        {
+            var vezX;
+            var vezO;
+
+            if (vez == 'x')
+            {
+                vezX = document.getElementById('vezAtual');
+                vezX.innerText = 'Vez de: X';
+                vezO = document.getElementById('vezProximo');
+                vezO.innerText = 'Próximo: O';
+            }    
+            else
+            {
+                vezO = document.getElementById('vezAtual');
+                vezO.innerText = 'Vez de: O';
+                vezX = document.getElementById('vezProximo');
+                vezX.innerText = 'Próximo: X';
+            }
+        }
+
+        vezDe('x');
+
+        // E F E T U A R   J O G A D A   ( E M   A S Y N C )
+        async function add(jogada, quadrante)
+        {
+            if (quadranteMarcado[quadrante] == 0 && contador_velha < 9)
+            {
+                vezJogador(jogada, quadrante);
+                vezDe('o');
+                await sleep(2000);
+                vezMaquina(jogadaMaquina);
+                vezDe('x');
+            }  
+        }
+
+        // V E Z   D O   J O G A D O R
+        function vezJogador(jogadaJogador, quadrante)
+        {
+            preencherQuadrante(jogadaJogador, 'x');
+        }
+
+        // V E Z   D A   M Á Q U I N A
+        function vezMaquina(jogadaMaquina) 
+        {
+            repita = 1;
+            while (repita == 1 && contador_velha < 9)
+            {
+                repita = 0;
+                jogadaMaquina = Math.floor(Math.random() * 9);
+                if (quadranteMarcado[jogadaMaquina] == 0)
+                    preencherQuadrante(quadrantes[jogadaMaquina], 'o');
+                else
+                    repita = 1;  
+            }
+        }
+
+        // P R E E N C H E   O U   X   O U   O
+        function preencherQuadrante(idQuadrante, tipo)
+        {
+            var elemento = document.getElementById(idQuadrante);
+            
+            if (tipo == 'x')
+                elemento.innerHTML = '<i class="fas fa-times"></i>';
+            else
+                elemento.innerHTML = '<i class="fas fa-circle"></i>';
+            adicionarNoQuadrante(idQuadrante);
+            contador_velha++;
+        }
+
+        // A D I C I O N A N D O   V A L O R E S   N O S   Q U A D R A N T E S
+        function adicionarNoQuadrante(add)
+        {
+            if (add == '1,1')
+                quadranteMarcado[0] = add;
+            else if (add == '1,2')
+                quadranteMarcado[1] = add;
+            else if (add == '1,3')
+                quadranteMarcado[2] = add;
+
+            else if (add == '2,1')
+                quadranteMarcado[3] = add;
+            else if (add == '2,2')
+                quadranteMarcado[4] = add;
+            else if (add == '2,3')
+                quadranteMarcado[5] = add;
+
+            else if (add == '3,1')
+                quadranteMarcado[6] = add;
+            else if (add == '3,2')
+                quadranteMarcado[7] = add;
+            else if (add == '3,3')
+                quadranteMarcado[8] = add;
+        }
+    </script>
+</html>
